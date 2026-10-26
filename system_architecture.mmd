@@ -1,0 +1,38 @@
+graph TD
+
+%% === CLI Client ===
+UserCLI["User CLI (cmd.py)\n- Uses A2AClient\n- Sends purchase order\n- Starts message flow"]
+UserCLI -->|JSON-RPC Task| MerchantMain["MerchantAgent (__main__.py)\nPort 10013\n Starts A2AServer"]
+
+%% === Merchant Agent ===
+MerchantMain --> MerchantTM["MerchantTaskManager (task_manager.py)\nHandles on_send_task"]
+MerchantTM --> MerchantAgent["MerchantAgent (agent.py)\n- Orchestrates full flow\n- Discovers other agents"]
+
+%% === Discovery + Connector ===
+MerchantAgent -->|lookup| Discovery["DiscoveryClient\n(agent_discovery.py)"]
+MerchantAgent -->|send_task| LabelerConn["AgentConnector to Labeler\n(agent_connect.py)"]
+
+%% === Labeler Agent ===
+LabelerConn --> LabelerMain["LabelerAgent (__main__.py)\nPort 10010\n Starts A2AServer"]
+LabelerMain --> LabelerTM["LabelerTaskManager (task_manager.py)\nHandles on_send_task"]
+LabelerTM --> LabelerAgent["LabelerAgent (agent.py)\n Creates LABEL-{orderId}-timestamp"]
+LabelerAgent -->|response| MerchantAgent
+
+%% === Wrapper Agent Loop ===
+MerchantAgent -->|for each item| WrapperConn["AgentConnector to Wrapper\n(agent_connect.py)"]
+WrapperConn --> WrapperMain["WrapperAgent (__main__.py)\nPort 10011\n Starts A2AServer"]
+WrapperMain --> WrapperTM["WrapperTaskManager (task_manager.py)\nHandles on_send_task"]
+WrapperTM --> WrapperAgent["WrapperAgent (agent.py)\n Decides wrapping: bubble-wrap/paper"]
+WrapperAgent -->|response| MerchantAgent
+
+%% === Packer Agent ===
+MerchantAgent --> PackerConn["AgentConnector to Packer\n(agent_connect.py)"]
+PackerConn --> PackerMain["PackerAgent (__main__.py)\nPort 10012\n Starts A2AServer"]
+PackerMain --> PackerTM["PackerTaskManager (task_manager.py)\nHandles on_send_task"]
+PackerTM --> PackerAgent["PackerAgent (agent.py)\n Correlates label & wrapped item"]
+PackerAgent -->|try_pack| PackerTM
+PackerTM -->|confirmation| MerchantAgent
+
+%% === Final User Response ===
+MerchantAgent --> MerchantTM
+MerchantTM -->|Completed Task with packed results| UserCLI

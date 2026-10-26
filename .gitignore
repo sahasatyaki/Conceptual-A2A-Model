@@ -1,0 +1,112 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+env.bak/
+
+# VS Code / JetBrains / other IDEs
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# macOS / Linux / Windows metadata
+.DS_Store
+Thumbs.db
+ehthumbs.db
+*.swp
+
+# Logs and temp
+*.log
+*.tmp
+*.bak
+
+# Test results
+coverage.xml
+htmlcov/
+.tox/
+.nox/
+.pytest_cache/
+.cache/
+nosetests.xml
+test-results/
+
+# Jupyter / interactive
+.ipynb_checkpoints/
+*.ipynb
+
+# Local config / env
+.env
+.env.*
+*.secret
+*.pem
+*.key
+
+# pip / poetry / pipenv
+pip-log.txt
+pip-delete-this-directory.txt
+poetry.lock
+Pipfile.lock
+
+# Build artifacts
+build/
+dist/
+*.egg-info/
+
+# Project-specific
+.mypy_cache/
+.pyre/
+.pytype/
+
+# Don't track agent_registry or runtime-generated discovery artifacts
+utilities/a2a/agent_registry.json
+**/agent_registry.json
+
+# More dotenv/direnv variants
+*.env
+.env.local
+.envrc
+
+# Common credential/config files that can hold tokens
+pip.ini
+.pypirc
+.npmrc
+.yarnrc
+
+# SSH / private keys
+.ssh/
+id_*
+*.pem
+*.key
+
+# Certificates & keystores
+*.crt
+*.cer
+*.der
+*.p12
+*.pfx
+*.jks
+*.keystore
+
+# cloud/app credential filenames
+service_account.json
+credentials.json
+client_secret.json
+firebase-service-account.json
+
+# Coverage artifacts
+.coverage
+.coverage.*
+
+# Don't track MCP configs
+utilities/mcp/mcp_config.json
+**/mcp_config.json
+
+# OS / tool cache dirs
+*.cache/

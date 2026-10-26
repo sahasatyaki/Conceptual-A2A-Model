@@ -1,0 +1,34 @@
+sequenceDiagram
+    participant User as User (CLI)
+    participant Merchant as MerchantAgent (10013)
+    participant Labeler as LabelerAgent (10010)
+    participant Wrapper as WrapperAgent (10011)
+    participant Packer as PackerAgent (10012)
+
+    Note over User,Merchant: 1. User submits a Purchase Order via CLI (cmd.py)
+    User->>Merchant: Send JSON-RPC task\n(purchase order)
+
+    Note over Merchant: 2. MerchantTaskManager receives task and invokes MerchantAgent
+    Merchant->>Labeler: Send task (orderId + address)\nfor shipping label
+
+    Note over Labeler: 3. LabelerTaskManager -> LabelerAgent\n→ Generates LABEL-{orderId}-{timestamp}
+    Labeler-->>Merchant: Return label payload
+
+    Note over Merchant,Wrapper: 4. For each item → send wrapping task
+    loop For each item in PO
+        Merchant->>Wrapper: Send task (orderId, itemId, item)
+        Wrapper->>Wrapper: Decide wrapping: fragile → bubble-wrap\nelse → paper
+        Wrapper-->>Merchant: Return wrapped item info
+    end
+
+    Note over Merchant,Packer: 5. Send label + wrapped item to Packer
+    loop For each wrapped item
+        Merchant->>Packer: Send label payload
+        Merchant->>Packer: Send wrapped item payload
+
+        Note over Packer: 6. PackerAgent stores both\n→ Calls try_pack(orderId, itemId)
+        Packer-->>Merchant: Return pack confirmation
+    end
+
+    Note over Merchant: 7. Aggregate all results
+    Merchant-->>User: Final response: List of packed items
